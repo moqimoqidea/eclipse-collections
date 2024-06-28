@@ -16,6 +16,7 @@ import java.util.Objects;
 import org.eclipse.collections.api.factory.map.ImmutableMapFactory;
 import org.eclipse.collections.api.map.ImmutableMap;
 
+@aQute.bnd.annotation.spi.ServiceProvider(ImmutableMapFactory.class)
 public class ImmutableMapFactoryImpl implements ImmutableMapFactory
 {
     public static final ImmutableMapFactory INSTANCE = new ImmutableMapFactoryImpl();
@@ -136,19 +137,19 @@ public class ImmutableMapFactoryImpl implements ImmutableMapFactory
      */
     @Override
     @Deprecated
-    public <K, V> ImmutableMap<K, V> ofMap(Map<K, V> map)
+    public <K, V> ImmutableMap<K, V> ofMap(Map<? extends K, ? extends V> map)
     {
         return this.ofAll(map);
     }
 
     @Override
-    public <K, V> ImmutableMap<K, V> ofAll(Map<K, V> map)
+    public <K, V> ImmutableMap<K, V> ofAll(Map<? extends K, ? extends V> map)
     {
         return this.withAll(map);
     }
 
     @Override
-    public <K, V> ImmutableMap<K, V> withAll(Map<K, V> map)
+    public <K, V> ImmutableMap<K, V> withAll(Map<? extends K, ? extends V> map)
     {
         if (map.isEmpty())
         {

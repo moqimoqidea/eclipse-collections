@@ -212,6 +212,27 @@ public class FastList<T>
         return result;
     }
 
+    /**
+     * Removes from this list all the elements whose index is between
+     * {@code fromIndex}, inclusive, and {@code toIndex}, exclusive.
+     * Shifts any succeeding elements to the left (reduces their index).
+     * This call shortens the list by {@code (toIndex - fromIndex)} elements.
+     * (If {@code toIndex==fromIndex}, this operation has no effect.)
+     * @param fromIndex inclusive
+     * @param toIndex exclusive
+     */
+    @Override
+    public void removeRange(int fromIndex, int toIndex)
+    {
+        if (fromIndex > toIndex)
+        {
+            throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ')');
+        }
+        System.arraycopy(this.items, toIndex, this.items, fromIndex, this.size - toIndex);
+        int newSize = this.size - (toIndex - fromIndex);
+        this.wipeAndResetTheEnd(newSize);
+    }
+
     @Override
     public void clear()
     {
@@ -901,6 +922,7 @@ public class FastList<T>
     /**
      * @since 11.0
      */
+    @Override
     public MutableList<T> selectWithIndex(ObjectIntPredicate<? super T> predicate)
     {
         return this.selectWithIndex(predicate, FastList.newList());
@@ -909,6 +931,7 @@ public class FastList<T>
     /**
      * @since 11.0
      */
+    @Override
     public MutableList<T> rejectWithIndex(ObjectIntPredicate<? super T> predicate)
     {
         return this.rejectWithIndex(predicate, FastList.newList());
@@ -917,6 +940,7 @@ public class FastList<T>
     /**
      * @since 11.0
      */
+    @Override
     public <R extends Collection<T>> R selectWithIndex(ObjectIntPredicate<? super T> predicate, R target)
     {
         return InternalArrayIterate.selectWithIndex(this.items, this.size, predicate, target);
@@ -925,6 +949,7 @@ public class FastList<T>
     /**
      * @since 11.0
      */
+    @Override
     public <R extends Collection<T>> R rejectWithIndex(ObjectIntPredicate<? super T> predicate, R target)
     {
         return InternalArrayIterate.rejectWithIndex(this.items, this.size, predicate, target);

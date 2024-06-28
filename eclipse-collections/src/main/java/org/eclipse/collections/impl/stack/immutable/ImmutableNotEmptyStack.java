@@ -193,7 +193,7 @@ final class ImmutableNotEmptyStack<T>
     @Override
     public T getLast()
     {
-        throw new UnsupportedOperationException("Cannot call getLast() on " + this.getClass().getSimpleName());
+        return this.peekAt(this.size() - 1);
     }
 
     @Override
@@ -447,7 +447,7 @@ final class ImmutableNotEmptyStack<T>
     @Override
     public ImmutableStack<T> distinct()
     {
-        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".distinct() not implemented yet");
+        return Stacks.immutable.withAllReversed(this.asLazy().distinct().toList());
     }
 
     @Override

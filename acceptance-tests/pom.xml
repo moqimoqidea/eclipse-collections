@@ -67,6 +67,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <scope>test</scope>
@@ -88,38 +94,7 @@
             </plugin>
 
             <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-
-            <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-enforcer-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>analyze</id>
-                        <goals>
-                            <goal>analyze-only</goal>
-                        </goals>
-                        <configuration>
-                            <failOnWarning>true</failOnWarning>
-                            <ignoredUnusedDeclaredDependencies>
-                                <ignoredUnusedDeclaredDependency>
-                                    com.google.code.findbugs:jsr305:jar
-                                </ignoredUnusedDeclaredDependency>
-                                <ignoredUnusedDeclaredDependency>
-                                    org.slf4j:slf4j-simple:jar
-                                </ignoredUnusedDeclaredDependency>
-                            </ignoredUnusedDeclaredDependencies>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
         </plugins>

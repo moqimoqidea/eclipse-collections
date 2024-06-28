@@ -114,28 +114,28 @@ public abstract class StackIterableTestCase
                 this.newStackFromTopToBottom(1, 2, 3));
     }
 
-    @Test(expected = EmptyStackException.class)
+    @Test
     public void peek_empty_throws()
     {
-        this.newStackWith().peek();
+        assertThrows(EmptyStackException.class, () -> this.newStackWith().peek());
     }
 
-    @Test(expected = EmptyStackException.class)
+    @Test
     public void peek_int_empty_throws()
     {
-        this.newStackWith().peek(1);
+        assertThrows(EmptyStackException.class, () -> this.newStackWith().peek(1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void peek_int_count_throws()
     {
-        this.newStackWith(1, 2, 3).peek(4);
+        assertThrows(IllegalArgumentException.class, () -> this.newStackWith(1, 2, 3).peek(4));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void peek_int_neg_throws()
     {
-        this.newStackWith(1, 2, 3).peek(-1);
+        assertThrows(IllegalArgumentException.class, () -> this.newStackWith(1, 2, 3).peek(-1));
     }
 
     @Test
@@ -195,7 +195,7 @@ public abstract class StackIterableTestCase
     }
 
     @Override
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void getLast()
     {
         StackIterable<Integer> stack = this.newStackWith(1, 2, 3);
@@ -1017,10 +1017,10 @@ public abstract class StackIterableTestCase
         assertEquals(UnifiedMap.newWithKeysValues(1, 1, 2, 2, 3, 3), this.newStackWith(1, 2, 3).groupByUniqueKey(id -> id));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void groupByUniqueKey_throws()
     {
-        this.newStackWith(1, 2, 3).groupByUniqueKey(Functions.getFixedValue(1));
+        assertThrows(IllegalStateException.class, () -> this.newStackWith(1, 2, 3).groupByUniqueKey(Functions.getFixedValue(1)));
     }
 
     @Override
@@ -1031,10 +1031,10 @@ public abstract class StackIterableTestCase
         assertEquals(UnifiedMap.newWithKeysValues(0, 0, 1, 1, 2, 2, 3, 3), integers);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void groupByUniqueKey_target_throws()
     {
-        this.newStackWith(1, 2, 3).groupByUniqueKey(id -> id, UnifiedMap.newWithKeysValues(2, 2));
+        assertThrows(IllegalStateException.class, () -> this.newStackWith(1, 2, 3).groupByUniqueKey(id -> id, UnifiedMap.newWithKeysValues(2, 2)));
     }
 
     @Override
@@ -1296,6 +1296,17 @@ public abstract class StackIterableTestCase
         Verify.assertPostSerializedEqualsAndHashCode(this.newStackWith(null, null, null));
 
         assertEquals(Stacks.mutable.of(), this.newStackWith());
+    }
+
+    @Test
+    public void distinct()
+    {
+        StackIterable<Integer> stack = this.newStackFromTopToBottom(5, 5, 4, 4, 3, 3, 2, 2, 1, 1);
+        StackIterable<Integer> actual = stack.distinct();
+        StackIterable<Integer> expected = this.newStackWith(1, 2, 3, 4, 5);
+        assertEquals(expected, actual);
+
+        assertEquals(this.newStackWith(), this.newStackFromTopToBottom().distinct());
     }
 
     @Test

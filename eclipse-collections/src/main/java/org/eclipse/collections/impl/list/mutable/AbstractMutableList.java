@@ -576,9 +576,56 @@ public abstract class AbstractMutableList<T>
     }
 
     @Override
+    public void clear()
+    {
+        this.removeRange(0, this.size());
+    }
+
+    @Override
     public MutableList<T> subList(int fromIndex, int toIndex)
     {
+        AbstractMutableList.subListRangeCheck(fromIndex, toIndex, this.size());
         return new SubList<>(this, fromIndex, toIndex);
+    }
+
+    /**
+     * Removes from this list all the elements whose index is between
+     * {@code fromIndex}, inclusive, and {@code toIndex}, exclusive.
+     * Shifts any succeeding elements to the left (reduces their index).
+     * This call shortens the list by {@code (toIndex - fromIndex)} elements.
+     * (If {@code toIndex==fromIndex}, this operation has no effect.)
+     * @param fromIndex inclusive
+     * @param toIndex exclusive
+     */
+    protected void removeRange(int fromIndex, int toIndex)
+    {
+        if (fromIndex > toIndex)
+        {
+            throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ')');
+        }
+        ListIterator<T> it = this.listIterator(fromIndex);
+        int n = toIndex - fromIndex;
+        for (int i = 0; i < n; i++)
+        {
+            it.next();
+            it.remove();
+        }
+    }
+
+    static void subListRangeCheck(int fromIndex, int toIndex, int size)
+    {
+        if (fromIndex < 0)
+        {
+            throw new IndexOutOfBoundsException("fromIndex = " + fromIndex);
+        }
+        if (toIndex > size)
+        {
+            throw new IndexOutOfBoundsException("toIndex = " + toIndex);
+        }
+        if (fromIndex > toIndex)
+        {
+            throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ')');
+        }
     }
 
     protected static class SubList<T>
@@ -588,27 +635,34 @@ public abstract class AbstractMutableList<T>
         // Not important since it uses writeReplace()
         private static final long serialVersionUID = 1L;
 
-        private final MutableList<T> original;
+        // Always point to the first MutableList
+        private final AbstractMutableList<T> original;
+        private final SubList<T> parent;
         private final int offset;
         private int size;
 
         protected SubList(AbstractMutableList<T> list, int fromIndex, int toIndex)
         {
-            if (fromIndex < 0)
-            {
-                throw new IndexOutOfBoundsException("fromIndex = " + fromIndex);
-            }
-            if (toIndex > list.size())
-            {
-                throw new IndexOutOfBoundsException("toIndex = " + toIndex);
-            }
-            if (fromIndex > toIndex)
-            {
-                throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ')');
-            }
             this.original = list;
+            this.parent = null;
             this.offset = fromIndex;
             this.size = toIndex - fromIndex;
+        }
+
+        protected SubList(SubList<T> parent, int fromIndex, int toIndex)
+        {
+            // Always point to the first MutableList
+            this.original = parent.original;
+            this.parent = parent;
+            this.offset = parent.offset + fromIndex;
+            this.size = toIndex - fromIndex;
+        }
+
+        @Override
+        public MutableList<T> subList(int fromIndex, int toIndex)
+        {
+            AbstractMutableList.subListRangeCheck(fromIndex, toIndex, this.size());
+            return new SubList<>(this, fromIndex, toIndex);
         }
 
         @Override
@@ -627,6 +681,7 @@ public abstract class AbstractMutableList<T>
         {
             this.original.add(this.offset + this.size, o);
             this.size++;
+            this.updateSize(1);
             return true;
         }
 
@@ -656,6 +711,7 @@ public abstract class AbstractMutableList<T>
             this.checkIfOutOfBounds(index);
             this.original.add(index + this.offset, element);
             this.size++;
+            this.updateSize(1);
         }
 
         @Override
@@ -664,17 +720,16 @@ public abstract class AbstractMutableList<T>
             this.checkIfOutOfBounds(index);
             T result = this.original.remove(index + this.offset);
             this.size--;
+            this.updateSize(-1);
             return result;
         }
 
         @Override
         public void clear()
         {
-            for (Iterator<T> iterator = this.iterator(); iterator.hasNext(); )
-            {
-                iterator.next();
-                iterator.remove();
-            }
+            this.original.removeRange(this.offset, this.offset + this.size());
+            this.updateSize(-this.size());
+            this.size = 0;
         }
 
         @Override
@@ -697,7 +752,18 @@ public abstract class AbstractMutableList<T>
             }
             this.original.addAll(this.offset + index, collection);
             this.size += cSize;
+            this.updateSize(cSize);
             return true;
+        }
+
+        private void updateSize(int sizeChange)
+        {
+            var p = this.parent;
+            while (p != null)
+            {
+                p.size += sizeChange;
+                p = p.parent;
+            }
         }
 
         @Override
@@ -760,6 +826,7 @@ public abstract class AbstractMutableList<T>
                 {
                     this.listIterator.remove();
                     SubList.this.size--;
+                    SubList.this.updateSize(-1);
                 }
 
                 public void set(T o)
@@ -771,6 +838,7 @@ public abstract class AbstractMutableList<T>
                 {
                     this.listIterator.add(o);
                     SubList.this.size++;
+                    SubList.this.updateSize(1);
                 }
             };
         }

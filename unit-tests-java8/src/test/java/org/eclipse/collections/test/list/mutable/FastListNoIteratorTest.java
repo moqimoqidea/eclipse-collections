@@ -35,6 +35,12 @@ public class FastListNoIteratorTest implements MutableListTestCase, NoIteratorTe
     }
 
     @Override
+    public void List_subList_subList_iterator_add_remove()
+    {
+        // Not applicable
+    }
+
+    @Override
     public void OrderedIterable_next()
     {
         // Not applicable

@@ -630,6 +630,8 @@ Arrays, Maps or Strings. The iteration protocol was inspired by the Smalltalk co
                 <module>serialization-tests</module>
                 <module>acceptance-tests</module>
                 <module>performance-tests</module>
+                <module>jmh-tests</module>
+                <module>jmh-scala-tests</module>
             </modules>
         </profile>
 

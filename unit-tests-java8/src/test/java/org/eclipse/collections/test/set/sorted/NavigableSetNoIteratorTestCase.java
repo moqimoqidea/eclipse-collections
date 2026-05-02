@@ -37,24 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public interface NavigableSetNoIteratorTestCase extends NavigableSetTestCase
 {
     @Override
-    @Test
-    default void Iterable_next()
+    default boolean allowsIterator()
     {
-        assertThrows(AssertionError.class, () -> this.newWith(3, 2, 1).iterator());
-    }
-
-    @Override
-    @Test
-    default void Iterable_remove()
-    {
-        assertThrows(AssertionError.class, () -> this.newWith(3, 2, 1).iterator());
-    }
-
-    @Override
-    @Test
-    default void Iterable_hasNext()
-    {
-        assertThrows(AssertionError.class, () -> this.newWith(3, 2, 1).iterator());
+        return false;
     }
 
     @Override

@@ -84,6 +84,16 @@ public interface IterableTestCase
         return true;
     }
 
+    default boolean allowsIterator()
+    {
+        return true;
+    }
+
+    default boolean implementsEquals()
+    {
+        return true;
+    }
+
     enum OrderingType
     {
         UNORDERED,
@@ -337,7 +347,15 @@ public interface IterableTestCase
             assertPostSerializedEqualsAndHashCode(this.newWith(3, 3, 3, 2, 2, 1));
         }
 
-        Verify.assertEqualsAndHashCode(this.newWith(3, 3, 3, 2, 2, 1), this.newWith(3, 3, 3, 2, 2, 1));
+        if (this.implementsEquals())
+        {
+            Verify.assertEqualsAndHashCode(this.newWith(3, 3, 3, 2, 2, 1), this.newWith(3, 3, 3, 2, 2, 1));
+        }
+        else
+        {
+            // Without structural equals, two instances with the same content are not equal
+            assertNotEquals(this.newWith(3, 3, 3, 2, 2, 1), this.newWith(3, 3, 3, 2, 2, 1));
+        }
 
         assertIterablesNotEqual(this.newWith(3, 3, 2, 1), this.newWith(3, 2, 1));
         assertIterablesNotEqual(this.newWith(3, 2, 1), this.newWith(3, 3, 2, 1));
@@ -349,6 +367,11 @@ public interface IterableTestCase
     @Test
     default void Iterable_hasNext()
     {
+        if (!this.allowsIterator())
+        {
+            assertThrows(AssertionError.class, () -> this.newWith(3, 2, 1).iterator().hasNext());
+            return;
+        }
         assertTrue(this.newWith(3, 2, 1).iterator().hasNext());
         assertFalse(this.newWith().iterator().hasNext());
     }
@@ -356,6 +379,11 @@ public interface IterableTestCase
     @Test
     default void Iterable_next()
     {
+        if (!this.allowsIterator())
+        {
+            assertThrows(AssertionError.class, () -> this.newWith(3, 2, 1).iterator().next());
+            return;
+        }
         Iterator<Integer> iterator = this.newWith(3, 2, 1).iterator();
         MutableSet<Integer> set = Sets.mutable.with();
         assertTrue(set.add(iterator.next()));
@@ -385,7 +413,15 @@ public interface IterableTestCase
     }
 
     @Test
-    void Iterable_remove();
+    default void Iterable_remove()
+    {
+        if (!this.allowsIterator())
+        {
+            assertThrows(AssertionError.class, () -> this.newWith(3, 2, 1).iterator().next());
+            return;
+        }
+        throw new AssertionError("Iterable_remove() must be overridden when allowsIterator() is true");
+    }
 
     @Test
     void Iterable_toString();

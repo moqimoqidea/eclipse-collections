@@ -63,6 +63,11 @@ public interface SortedSetTestCase extends CollectionTestCase
     @Test
     default void Iterable_remove()
     {
+        if (!this.allowsIterator())
+        {
+            assertThrows(AssertionError.class, () -> this.newWith(3, 2, 1).iterator().next());
+            return;
+        }
         if (!this.allowsRemove())
         {
             Iterable<Integer> iterable = this.newWith(2, 4, 6);

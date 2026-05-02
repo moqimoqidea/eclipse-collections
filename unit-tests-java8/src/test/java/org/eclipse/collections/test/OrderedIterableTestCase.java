@@ -221,6 +221,12 @@ public interface OrderedIterableTestCase extends RichIterableTestCase
     {
         RichIterableTestCase.super.Iterable_next();
 
+        if (!this.allowsIterator())
+        {
+            assertThrows(AssertionError.class, () -> this.newWith(3, 2, 1).iterator().next());
+            return;
+        }
+
         Iterator<Integer> iterator = this.newWith(3, 2, 1).iterator();
         switch (this.getOrderingType())
         {
